@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wger-app
+  namespace: wger-devops
+  labels:
+    app: wger
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wger
+  template:
+    metadata:
+      labels:
+        app: wger
+    spec:
+      containers:
+        # ---- Backend: Django app, built & pushed by the CI pipeline ----
+        - name: django
+          image: milablazevska/wger-devops-project:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: wger-app-config
+            - secretRef:
+                name: wger-app-secret
+          volumeMounts:
+            - name: static-files
+              mountPath: /app/static
+            - name: media-files
+              mountPath: /app/media
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 20
+
+        # ---- Frontend: nginx sidecar, same Pod -> shares localhost ----
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+            - name: static-files
+              mountPath: /app/static
+              readOnly: true
+            - name: media-files
+              mountPath: /app/media
+              readOnly: true
+
+      volumes:
+        # emptyDir: lives only as long as the Pod: fine for static/media
+        # here since the django container regenerates static files (via
+        # collectstatic in entrypoint.sh) on every start anyway.
+        - name: static-files
+          emptyDir: {}
+        - name: media-files
+          emptyDir: {}
+        - name: nginx-config
+          configMap:
+            name: wger-nginx-config

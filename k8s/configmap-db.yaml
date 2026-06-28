@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wger-db-config
+  namespace: wger-devops
+data:
+  POSTGRES_DB: "wger"
+  POSTGRES_USER: "wger"

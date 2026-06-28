@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: wger-db
+  namespace: wger-devops
+spec:
+  serviceName: wger-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wger-db
+  template:
+    metadata:
+      labels:
+        app: wger-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            # Avoids a known gotcha: some volume types create a
+            # "lost+found" dir, which makes Postgres think the data
+            # directory isn't empty on first init. Using a subdirectory
+            # avoids that entirely.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          envFrom:
+            - configMapRef:
+                name: wger-db-config
+            - secretRef:
+                name: wger-db-secret
+          volumeMounts:
+            - name: db-data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "wger", "-d", "wger"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: db-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

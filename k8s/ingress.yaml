@@ -1,0 +1,22 @@
+# Uses Traefik because that's k3d's built-in default ingress controller.
+# If your cluster uses a different one, check with:
+#   kubectl get ingressclass
+# and change ingressClassName below to match.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wger-ingress
+  namespace: wger-devops
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: wger.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: wger-service
+                port:
+                  number: 80

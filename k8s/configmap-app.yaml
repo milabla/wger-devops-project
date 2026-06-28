@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wger-app-config
+  namespace: wger-devops
+data:
+  DJANGO_DEBUG: "False"
+  DJANGO_DB_ENGINE: "django.db.backends.postgresql"
+  DJANGO_DB_HOST: "wger-db"
+  DJANGO_DB_PORT: "5432"
+  DJANGO_DB_DATABASE: "wger"
+  DJANGO_DB_USER: "wger"
+  DJANGO_STATIC_ROOT: "/app/static"
+  DJANGO_MEDIA_ROOT: "/app/media"
+  SITE_URL: "http://wger.local"
+  CSRF_TRUSTED_ORIGINS: "http://wger.local"
