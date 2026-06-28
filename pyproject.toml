@@ -68,6 +68,7 @@ dependencies = [
     "requests~=2.34.0",
     "tqdm~=4.68.1",
     "tzdata~=2026.2",
+    "gunicorn>=26.0.0",
 ]
 
 [dependency-groups]

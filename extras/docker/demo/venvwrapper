@@ -1,5 +1,0 @@
-#!/bin/bash
-
-. /home/wger/venv/bin/activate
-
-python /home/wger/src/manage.py "$@"

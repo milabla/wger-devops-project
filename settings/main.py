@@ -153,7 +153,13 @@ LOGIN_REDIRECT_URL = env.str('LOGIN_REDIRECT_URL', '/')
 ALLOWED_HOSTS = [
     '*',
 ]
-
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ],
+)
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 # Configure a real backend in production

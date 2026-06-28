@@ -91,5 +91,8 @@ venv-wger
 /extras/open-food-facts/dump/
 /.claude/
 
-# macOS
+
 .DS_Store
+.env
+
+wger/core/static/bootstrap-compiled.css*
