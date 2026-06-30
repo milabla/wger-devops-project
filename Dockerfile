@@ -8,11 +8,11 @@ FROM node:22-slim AS frontend-builder
 
 WORKDIR /app
 
-# Install JS deps first (better layer caching - only re-runs if package.json changes)
+# Install JS deps (better layer caching - only re-runs if package.json changes)
 COPY package.json package-lock.json* ./
 RUN npm install
 
-# Now bring in the scss sources and compile them
+# scss sources and compile them
 COPY wger/core/static/scss ./wger/core/static/scss
 RUN npm run build:css:sass
 
@@ -25,7 +25,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# System packages needed to build/run psycopg, Pillow, etc.
+# System packages needed to build/run psycopg, Pillow, etc
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         libpq-dev \
@@ -33,20 +33,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Official way to get the uv binary into the image (no curl needed)
+# get the uv binary into the image
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
-# Install third-party dependencies first (cached separately from app code).
+# Install third-party dependencies first (cached separately from app code)
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
-# Now copy the rest of the application code
 COPY . .
 
-# Install the local project itself now that its source files are present.
+# Install the local project itself
 RUN uv sync --frozen --no-dev
 
-# Copy node_modules FIRST so collectstatic can pick up JS/CSS vendor files
+# Copy node_modules first so collectstatic can pick up JS/CSS vendor files
 COPY --from=frontend-builder /app/node_modules ./node_modules
 
 # Copy compiled CSS from Stage 1
@@ -59,11 +58,11 @@ ENV DJANGO_DEBUG=False \
     DJANGO_STATIC_ROOT=/app/static \
     DJANGO_MEDIA_ROOT=/app/media
 
-# collectstatic runs AFTER node_modules are in place
+# collectstatic runs after node_modules are in place
 RUN uv run python manage.py collectstatic --noinput --skip-checks
 
 
-# Stage 3: Runtime (small image, only what's needed to run)
+# Stage 3: Runtime (small image)
 FROM python:3.13-slim AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -72,7 +71,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     DJANGO_STATIC_ROOT=/app/static \
     DJANGO_MEDIA_ROOT=/app/media
 
-# Runtime system libs only (no compilers/headers needed here)
+# Runtime system libs only (no compilers/headers)
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq5 \
         libjpeg62-turbo \

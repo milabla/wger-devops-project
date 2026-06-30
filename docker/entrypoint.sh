@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+echo "Collecting static files"
+python manage.py collectstatic --noinput --skip-checks --clear
+
 echo "Applying database migrations"
 python manage.py migrate --noinput
 
@@ -18,9 +21,6 @@ Gym.objects.get_or_create(pk=1, defaults={'name': 'Default Gym'})
 GymConfig.objects.get_or_create(pk=1)
 print(' Seed data OK: Site, Gym, GymConfig present.')
 "
-
-echo "Collecting static files"
-python manage.py collectstatic --noinput --skip-checks
 
 echo "Starting Gunicorn"
 exec gunicorn wger.wsgi:application \

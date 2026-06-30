@@ -16,7 +16,7 @@ spec:
         app: wger
     spec:
       containers:
-        # ---- Backend: Django app, built & pushed by the CI pipeline ----
+        # Backend: Django app, built & pushed by the CI pipeline
         - name: django
           image: milablazevska/wger-devops-project:latest
           ports:
@@ -35,16 +35,16 @@ spec:
             httpGet:
               path: /
               port: 8000
-            initialDelaySeconds: 15
+            initialDelaySeconds: 1000
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
               port: 8000
-            initialDelaySeconds: 30
+            initialDelaySeconds: 1000
             periodSeconds: 20
 
-        # ---- Frontend: nginx sidecar, same Pod -> shares localhost ----
+        # Frontend: nginx sidecar, same Pod -> shares localhost
         - name: nginx
           image: nginx:1.27-alpine
           ports:
