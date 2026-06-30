@@ -4,6 +4,9 @@ on:
   push:
     branches: [ devops-project, main, master ]
 
+permissions:
+  contents: write
+
 env:
   IMAGE_NAME: milablazevska/wger-devops-project
 
