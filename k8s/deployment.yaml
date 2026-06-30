@@ -18,7 +18,7 @@ spec:
       containers:
         # Backend: Django app, built & pushed by the CI pipeline
         - name: django
-          image: milablazevska/wger-devops-project:latest
+          image: milablazevska/wger-devops-project:962f92cd63fcbdab286bfa59931fba557da56ccd
           ports:
             - containerPort: 8000
           envFrom:
