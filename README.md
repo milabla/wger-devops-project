@@ -1,102 +1,231 @@
-# wger
+# wger DevOps Project
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/wger-project/wger/master/wger/core/static/images/logos/logo.png" width="100" height="100" alt="wger logo">
+Овој репозиториум содржи целосна DevOps инфраструктура за [wger](https://github.com/wger-project/wger) - апликација со отворен код за следење на фитнес активности, исхрана и тежина.
 
-![AGPLv3 License](https://img.shields.io/badge/License-AGPLv3-blue.svg)
-![Build Status](https://img.shields.io/github/actions/workflow/status/wger-project/wger/ci.yml?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/wger-project/wger/badge.svg?branch=master)](https://coveralls.io/github/wger-project/wger?branch=master)
-![Translation Status](https://hosted.weblate.org/widget/wger/svg-badge.svg)
-</p>
+## Технологии
 
+- **Апликација:** Django (Python), Gunicorn, PostgreSQL, Nginx, Node.js/Sass
+- **Контејнеризација:** Docker (multi-stage build), Docker Compose
+- **CI/CD:** GitHub Actions + ArgoCD (GitOps)
+- **Оркестрација:** Kubernetes (k3d/k3s), Traefik Ingress
 
-wger (ˈvɛɡɐ) is a free workout and fitness manager.
+---
 
-- 🏋️ **Custom Workout Routines** – Create flexible routines with automatic weight progression rules.
-- 📊 **Comprehensive Tracking** – Track diet plans, body weight, and custom measurements.
-- 🍽️ **Nutrition Management** – Log your calories with a food database
-  from [Open Food Facts](https://openfoodfacts.org).
-- 📸 **Progress Gallery** – Upload and track your fitness progress with photos.
-- 📚 **Exercise Wiki** – Access and contribute to the built-in exercises.
-- 📱 **Cross-Platform Apps** – Available on
-  [Android](https://play.google.com/store/apps/details?id=de.wger.flutter),
-  [iOS](https://apps.apple.com/us/app/wger-workout-manager/id6502226792),
-  [F-Droid](https://f-droid.org/en/packages/de.wger.flutter/),
-  and [Flathub](https://flathub.org/apps/de.wger.flutter).
-- 🐳 **Self-Hostable** – Deploy easily with Docker for full control.
-- 🌍 **Multilingual Support** – Translated by the community via Weblate.
-- 🔗 **Powerful API** – REST API for third-party integrations or automations.
-- 👥 **Multi-User Support** – Includes basic gym management features.
-- 🆓 **100% Free & Open Source** – Licensed under AGPL-3.0 or later.
+## Структура на проектот
 
+```
+wger-devops-project/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── docker/
+│   └── entrypoint.sh
+├── k8s/
+│   ├── namespace.yaml
+│   ├── configmap-app.yaml
+│   ├── configmap-db.yaml
+│   ├── configmap-nginx.yaml
+│   ├── secret-app.example.yaml
+│   ├── secret-db.example.yaml
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── headless-service-db.yaml
+│   ├── ingress.yaml
+│   └── statefulset-db.yaml
+├── argocd-application.yaml
+├── Dockerfile
+├── docker-compose.yml
+├── nginx.conf
+└── .env.example
+```
 
-For a live system, visit: <https://wger.de>
+---
 
-<p align="center" style="line-height:0; margin:0; padding:0;">
-  <a href="https://play.google.com/store/apps/details?id=de.wger.flutter" target="_blank" style="text-decoration:none; border:none; outline:none;"><img src="https://raw.githubusercontent.com/wger-project/wger/master/wger/core/static/images/logos/play-store/badge.svg" alt="Get it on Google Play" height="50" style="margin-right:8px; vertical-align:middle; border:none; outline:none; display:inline-block;"></a>
-  <a href="https://apps.apple.com/us/app/wger-workout-manager/id6502226792" target="_blank" style="text-decoration:none; border:none; outline:none;"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="64" style="margin-right:8px; vertical-align:middle; border:none; outline:none; display:inline-block; background:none;"></a>
-  <a href="https://f-droid.org/packages/de.wger.flutter/" target="_blank" style="text-decoration:none; border:none; outline:none;"><img src="https://raw.githubusercontent.com/wger-project/wger/master/wger/core/static/images/logos/fdroid/get-it-on.png" alt="Get it on F-Droid" height="50" style="margin-right:8px; vertical-align:middle; border:none; outline:none; display:inline-block; background:none;"></a>
-  <a href="https://flathub.org/apps/de.wger.flutter" target="_blank" style="text-decoration:none; border:none; outline:none;"><img src="https://raw.githubusercontent.com/wger-project/wger/master/wger/core/static/images/logos/flathub/black.svg" alt="Get it on Flathub" height="50" style="vertical-align:middle; border:none; outline:none; display:inline-block; background:none;"></a>
-</p>
+## Брзо стартување (Docker Compose)
 
+### 1. Клонирај го репозиториумот
 
+```bash
+git clone https://github.com/milabla/wger-devops-project.git
+cd wger-devops-project
+```
 
-## Self-hosting
+### 2. Креирај `.env` фајл
 
-Hosting your own instance is basically just a `docker compose up -d` away. For
-more detailed setup instructions take a look at the provided
-[docker compose file](https://github.com/wger-project/docker) and the
-[corresponding documentation](https://wger.readthedocs.io/en/latest/installation/docker.html).
+```bash
+cp .env.example .env
+```
 
-## Developing and contributing
+Уреди го `.env` и замени ги placeholder вредностите:
 
-Our goal is to build an awesome and flexible fitness and nutrition manager,
-along with a comprehensive list of exercises and ingredients, all released
-under a free license.
+```env
+SECRET_KEY=replace-with-a-long-random-string
+DJANGO_DB_DATABASE=wger
+DJANGO_DB_USER=wger
+DJANGO_DB_PASSWORD=replace-with-a-real-password
+SITE_URL=http://localhost:8000
+```
 
-For this, we’d love your help! Whether it’s code, translations, exercises or
-reporting issues and ideas, check out our
-[contribution guide](https://wger.readthedocs.io/en/latest/contributing.html)
-to get started.
+Генерирај SECRET_KEY:
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(50))"
+```
 
-A huge thank you to everyone who has contributed so far! ❤️ See the full list
-in [AUTHORS.md](AUTHORS.md).
+### 3. Стартувај
 
-## Documentation
+```bash
+docker compose up --build -d
+```
 
-Consult the online documentation at
+Апликацијата е достапна на [http://localhost:8000](http://localhost:8000).
 
-* <https://wger.readthedocs.io>
+---
 
-for installation instructions, API documentation, development guidelines, and
-other information
+## Архитектура (Docker Compose)
 
-## Contact
+```
+Browser → Nginx (:8000) → Gunicorn/Django (:8000) → PostgreSQL (:5432)
+```
 
-Feel free to contact us if you found this useful or if there was something that
-didn't behave as you expected. We can't fix what we don't know about, so please
-report liberally. If you're not sure if something is a bug or not, feel free to
-file a bug anyway.
+Три сервиси:
+- **db** - PostgreSQL 16 база на податоци
+- **web** - Django апликација сервирана преку Gunicorn
+- **nginx** - Reverse proxy, сервира статички фајлови директно
 
-* **Discord:** <https://discord.gg/rPWFv6W>
-* **Mastodon:** <https://fosstodon.org/@wger>
-* **Issue tracker:** <https://github.com/wger-project/wger/issues>
+---
 
-## Sources
+## Dockerfile (Multi-stage build)
 
-All the code and the content is available on github:
+Три стејџи за оптимален финален image:
 
-* <https://github.com/wger-project>
+| Стејџ | Base image | Цел |
+|---|---|---|
+| `frontend-builder` | node:22-slim | Компајлира Sass/SCSS → CSS |
+| `backend-builder` | python:3.13-slim | Инсталира Python deps, `collectstatic` |
+| `runtime` | python:3.13-slim | Финален мал image за production |
 
-## Translation
+---
 
-Translate the app to your language on [Weblate](https://hosted.weblate.org/engage/wger/).
+## CI/CD Pipeline (GitHub Actions + ArgoCD)
 
-[![translation status](https://hosted.weblate.org/widgets/wger/-/multi-blue.svg)](https://hosted.weblate.org/engage/wger/)
+### Автоматски тригер
+При секој `push` на гранките `devops-project`, `main`, `master`.
 
-## License
+### Job 1: `build-and-push`
+- Build-ува Docker image (multi-stage)
+- Push-ува на DockerHub со два тага:
+  - `milablazevska/wger-devops-project:latest`
+  - `milablazevska/wger-devops-project:<commit-sha>`
 
-* Application Code: [AGPL-3.0-or-later](https://www.gnu.org/licenses/agpl-3.0.html)
-* Exercise/Ingredient Data: Creative Commons (see individual entries)
-* Documentation: [CC-BY-SA-4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+### Job 2: `update-manifest`
+- Го ажурира `k8s/deployment.yaml` со новиот commit SHA image tag
+- Commit-ува и push-нува назад во репозиториумот
 
+### ArgoCD (GitOps CD)
+ArgoCD континуирано го следи `k8s/` директориумот и автоматски ги применува промените на Kubernetes кластерот при секоја детектирана промена во Git.
+
+```
+git push → CI build & push image → CI ажурира k8s/deployment.yaml
+                                              ↓
+                          ArgoCD детектира промена → kubectl apply → Kubernetes
+```
+
+### Потребни GitHub Secrets
+
+| Secret | Опис |
+|---|---|
+| `DOCKERHUB_USERNAME` | DockerHub корисничко име |
+| `DOCKERHUB_TOKEN` | DockerHub Access Token |
+
+---
+
+## Kubernetes (k3d)
+
+### Креирај кластер
+
+```bash
+k3d cluster create wger-cluster --port "80:80@loadbalancer"
+```
+
+### Примени манифести
+
+```bash
+# 1. Namespace
+kubectl apply -f k8s/namespace.yaml
+
+# 2. Secrets (не се на Git - мора рачно да се создадат)
+cp k8s/secret-app.example.yaml k8s/secret-app.yaml
+cp k8s/secret-db.example.yaml k8s/secret-db.yaml
+# Уреди ги фајловите со вистински вредности
+kubectl apply -f k8s/secret-app.yaml
+kubectl apply -f k8s/secret-db.yaml
+
+# 3. Останати манифести
+kubectl apply -f k8s/
+```
+
+### Ресурси во namespace `wger-devops`
+
+| Ресурс | Тип | Опис |
+|---|---|---|
+| `wger-app` | Deployment | 2 реплики (django + nginx sidecar) |
+| `wger-db` | StatefulSet | PostgreSQL со PVC (1Gi) |
+| `wger-service` | Service (ClusterIP) | Load balancing кон app Pods |
+| `wger-db` | Service (Headless) | DNS резолуција кон PostgreSQL |
+| `wger-ingress` | Ingress | `wger.local` → `wger-service` |
+| `wger-app-config` | ConfigMap | Django env поставки |
+| `wger-db-config` | ConfigMap | PostgreSQL env поставки |
+| `wger-nginx-config` | ConfigMap | Nginx конфигурација |
+| `wger-app-secret` | Secret | SECRET_KEY, DB лозинка |
+| `wger-db-secret` | Secret | PostgreSQL лозинка |
+
+### Локален пристап
+
+Додај во `hosts` фајлот (`C:\Windows\System32\drivers\etc\hosts`):
+
+```
+127.0.0.1 wger.local
+```
+
+Апликацијата е достапна на [http://wger.local](http://wger.local).
+
+---
+
+## ArgoCD
+
+### Инсталација
+
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+
+### Пристап до UI
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+Отвори [https://localhost:8080](https://localhost:8080), логирај се со:
+- **Username:** `admin`
+- **Password:** 
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+### Примени ArgoCD Application
+
+```bash
+kubectl apply -f argocd-application.yaml
+```
+
+ArgoCD автоматски ќе ги следи и применува промените во `k8s/` директориумот.
+
+---
+
+## Безбедност
+
+- Реалните `.env`, `secret-app.yaml` и `secret-db.yaml` фајлови се во `.gitignore` и **никогаш не се commit-уваат**
+- На Git постојат само `.example` верзии со placeholder вредности
+- Kubernetes Secrets се користат за сите чувствителни податоци
+- Апликацијата работи како non-root корисник (`wger`, UID 1000)
